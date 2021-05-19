@@ -28,8 +28,6 @@ public class EnemySpawner : MonoBehaviour
 
   void Intialize()
     {
-        if (GameManager.Instance.enemyCount == -1)
-            GameManager.Instance.enemyCount = 0;
         grid = GameObject.FindGameObjectWithTag("GridLayout").GetComponent<GridLayout>();
         totalEnemies = new GameObject[numberOfEnemies];
 
@@ -43,8 +41,6 @@ public class EnemySpawner : MonoBehaviour
                 {
                     for (int i = 0; i < numberOfEnemies; ++i)
                     {
-                        int x = Random.Range(4, 6);
-                        int y = Random.Range(1, 3);
                         GameObject temp = Instantiate(enemies[Random.Range(0, enemies.Length)]);
 
                         Vector3 xy = grid.GetEnemyGrid()[Random.Range(0, grid.GetEnemyGrid().Length)].transform.position;
@@ -59,7 +55,6 @@ public class EnemySpawner : MonoBehaviour
                         temp.transform.position = new Vector3(xy.x, temp.transform.position.y, 2);
                         //grid.GetEnemyPlatform(xy).SetPlatformType(Platform.PlatformType.Occupied);
                         totalEnemies[i] = temp;
-                        GameManager.Instance.enemyCount++;
                     }
                 }
             }

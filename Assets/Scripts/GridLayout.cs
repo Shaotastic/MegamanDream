@@ -13,7 +13,7 @@ public class GridLayout : MonoBehaviour
     public bool divideGrid;
 
     Platform[,] objArr;
-    public Platform[] enemyGrid;
+    public Platform[] m_EnemyGrid;
 
     int xSize, ySize;
 
@@ -26,7 +26,7 @@ public class GridLayout : MonoBehaviour
         xSize = CheckValue(x);
         ySize = y;
 
-        enemyGrid = new Platform[(xSize / 2) * ySize];
+        m_EnemyGrid = new Platform[(xSize / 2) * ySize];
 
         if (obj != null)
         {
@@ -116,28 +116,24 @@ public class GridLayout : MonoBehaviour
                 if (val)
                 {
                     if (i < xSize / 2)
-                    {
-                        objArr[i, j].SetPlatformType(Platform.PlatformType.Player);
-                    }
+                        objArr[i, j].Initialize(Platform.PlatformType.Player);
 
                     else
                     {
-                        objArr[i, j].SetPlatformType(Platform.PlatformType.Enemy);
-                        enemyGrid[index] = objArr[i, j];
+                        objArr[i, j].Initialize(Platform.PlatformType.Enemy);
+                        m_EnemyGrid[index] = objArr[i, j];
                         index++;
                     }
                 }
                 else
-                {
-                    objArr[i, j].SetPlatformType(Platform.PlatformType.Free);
-                }
+                    objArr[i, j].Initialize(Platform.PlatformType.Free);
             }
         }
     }
 
     public Platform[] GetEnemyGrid()
     {
-        return enemyGrid;
+        return m_EnemyGrid;
     }
 
     public Platform GetEnemyPlatform(Vector3 vec)
@@ -164,4 +160,10 @@ public class GridLayout : MonoBehaviour
 
         return x;
     }
+
+    public Platform RandomEnemyPlatform()
+    {
+        return m_EnemyGrid[Random.Range(0, m_EnemyGrid.Length)];
+    }
+
 }

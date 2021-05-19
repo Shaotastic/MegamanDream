@@ -17,7 +17,6 @@ public class PlayerMovement : MonoBehaviour
         Intialize();
     }
 
-
     void Intialize()
     {
         if (grid == null)
@@ -32,7 +31,6 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         Movement();
-
     }
 
     void Movement()

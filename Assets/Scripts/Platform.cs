@@ -16,6 +16,8 @@ public class Platform : MonoBehaviour
     [SerializeField] private MeshRenderer m_MeshRenderer;
     [SerializeField] private bool disabled;
 
+    public bool IsOccupied { get => (platform == PlatformType.Occupied); }
+
     // Use this for initialization
     void Start()
     {
@@ -55,6 +57,11 @@ public class Platform : MonoBehaviour
     public void SetPlatformType(PlatformType plat)
     {
         platform = plat;
+    }
+
+    public void Initialize(PlatformType plat)
+    {
+        platform = plat;
 
         switch (plat)
         {
@@ -84,5 +91,10 @@ public class Platform : MonoBehaviour
     public float GetZScale()
     {
         return transform.localScale.z;
+    }
+
+    public void OccupyPlatform()
+    {
+        platform = PlatformType.Occupied;
     }
 }

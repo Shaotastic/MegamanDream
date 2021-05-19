@@ -41,8 +41,6 @@ public class PlayerStat : MonoBehaviour
         if (bonus == null)
             bonus = GameObject.FindGameObjectWithTag("Bonus").GetComponent<BonusStats>();
 
-        if (GameManager.Instance.currentHealth != -1 && GameManager.Instance.level == 1)
-            currentHealth = GameManager.Instance.currentHealth;
         else
             currentHealth = startingHealth + BonusStats.healthB;
     }
@@ -59,7 +57,6 @@ public class PlayerStat : MonoBehaviour
         text.text = "Health: " + currentHealth.ToString()
             + "\nDefense: " + BonusStats.armourB.ToString()
             + "\nAttack: " + BonusStats.damageB.ToString();
-        GameManager.Instance.currentHealth = currentHealth;
     }
 
     public void TakeDamage(int damage)

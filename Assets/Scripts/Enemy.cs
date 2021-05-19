@@ -32,8 +32,6 @@ public class Enemy : MonoBehaviour
         if (target == null)
             Debug.Log("There is not target to locate.");
 
-
-
         if (weapon == null)
         {
             Debug.Log("Weapon is null");
@@ -82,7 +80,6 @@ public class Enemy : MonoBehaviour
     {
         Destroy(this.gameObject);
         grid.GetEnemyPlatform(transform.position).SetPlatformType(Platform.PlatformType.Enemy);
-        GameManager.Instance.enemyCount--;
     }
 
     void Update()
