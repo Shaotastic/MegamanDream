@@ -3,7 +3,7 @@ using System.Collections;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField] private GridLayout grid;
+    [SerializeField] private GridLayout m_Grid;
     private Vector3 m_Direction;
 
     void Awake()
@@ -19,11 +19,11 @@ public class PlayerMovement : MonoBehaviour
 
     void Intialize()
     {
-        if (grid == null)
-            grid = GameObject.FindGameObjectWithTag("GridLayout").GetComponent<GridLayout>();
+        if (m_Grid == null)
+            m_Grid = GameObject.FindGameObjectWithTag("GridLayout").GetComponent<GridLayout>();
 
-        if (grid.OutOfBounds(transform.position))
-            transform.position = new Vector3(0, transform.position.y, 0);
+        if (m_Grid.OutOfBounds(transform.position))
+            m_Grid.SetPositionOnGrid(transform, Vector3.zero);
 
         transform.position = new Vector3(Mathf.RoundToInt(transform.position.x), transform.position.y, Mathf.RoundToInt(transform.position.z));
     }
@@ -35,20 +35,16 @@ public class PlayerMovement : MonoBehaviour
 
     void Movement()
     {
-        m_Direction = Vector3.zero;
+        if (Input.GetKeyDown(KeyCode.W))
+            m_Grid.MoveOnGrid(transform, GridLayout.Direction.Up, Platform.PlatformType.Player);
 
-        if (Input.GetKeyDown(KeyCode.W) && grid.CheckPlatformNorth(transform.position, Platform.PlatformType.Player))
-            m_Direction += Vector3.forward;
+        if (Input.GetKeyDown(KeyCode.S))
+            m_Grid.MoveOnGrid(transform, GridLayout.Direction.Down, Platform.PlatformType.Player);
 
-        if (Input.GetKeyDown(KeyCode.S) && grid.CheckPlatformSouth(transform.position, Platform.PlatformType.Player))
-            m_Direction += Vector3.back;
+        if (Input.GetKeyDown(KeyCode.D))
+            m_Grid.MoveOnGrid(transform, GridLayout.Direction.Right, Platform.PlatformType.Player);
 
-        if (Input.GetKeyDown(KeyCode.D) && grid.CheckPlatformEast(transform.position, Platform.PlatformType.Player))
-            m_Direction += Vector3.right;
-
-        if (Input.GetKeyDown(KeyCode.A) && grid.CheckPlatformWest(transform.position, Platform.PlatformType.Player))
-            m_Direction += Vector3.left;
-
-        transform.position += m_Direction;
+        if (Input.GetKeyDown(KeyCode.A))
+            m_Grid.MoveOnGrid(transform, GridLayout.Direction.Left, Platform.PlatformType.Player);
     }
 }

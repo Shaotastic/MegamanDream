@@ -70,7 +70,7 @@ public class PlayerStat : MonoBehaviour
         {
             if (col.GetComponent<Bullet>().GetWeaponType() == Weapon.WeaponType.Enemy)
             {
-                TakeDamage(col.gameObject.GetComponent<Bullet>().GetBulletDamage());
+                //TakeDamage(col.gameObject.GetComponent<Bullet>().GetBulletDamage());
                 StartCoroutine(Flash());
             }
         }

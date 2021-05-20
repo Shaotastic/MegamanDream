@@ -45,7 +45,7 @@ public class EnemySpawner : MonoBehaviour
 
                         Vector3 xy = grid.GetEnemyGrid()[Random.Range(0, grid.GetEnemyGrid().Length)].transform.position;
 
-                        if (grid.GetEnemyPlatform(xy).GetPlatformType() == Platform.PlatformType.Occupied)
+                        if (grid.GetPlatform(xy).IsOccupied)
                         {
                             Vector3 oh = xy;
                             while (oh == xy)

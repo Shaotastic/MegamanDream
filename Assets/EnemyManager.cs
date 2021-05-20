@@ -14,6 +14,11 @@ public class EnemyManager : MonoBehaviour
 
     [SerializeField] GridLayout m_GridLayout;
 
+    [SerializeField] List<Vector3> m_Points = new List<Vector3>();
+
+    [SerializeField] int m_CurrentEnemyIndex = 0;
+
+    System.Action action;
     private void Awake()
     {
         if (Instance == null)
@@ -37,15 +42,47 @@ public class EnemyManager : MonoBehaviour
 
             Enemy temp = Instantiate(m_EnemyList[randomIndex], transform);
 
-            Vector3 position = Vector3.zero;
+            Vector3 position;
 
             do
             {
                 position = m_GridLayout.RandomEnemyPlatform().transform.position;
-            } while (m_GridLayout.GetEnemyPlatform(position).IsOccupied);
-            m_GridLayout.GetEnemyPlatform(position).OccupyPlatform();
-            temp.transform.position = new Vector3(position.x, temp.transform.position.y, position.z);
+            } while (m_GridLayout.GetPlatform(position).IsOccupied);
+            m_Points.Add(position);
+            m_GridLayout.GetPlatform(position).OccupyPlatform();
+            temp.transform.position = position;
             m_ActiveEnemies.Add(temp);
         }
+        Thing();
     }
+
+    private void Update()
+    {
+
+    }
+
+
+    internal void Thing()
+    {
+        m_ActiveEnemies[m_CurrentEnemyIndex].EnableMovement();
+    }
+
+    internal void NextEnemy()
+    {
+        //m_ActiveEnemies[m_CurrentEnemyIndex].DisableMovement();
+        
+
+        if (m_CurrentEnemyIndex >= m_ActiveEnemies.Count - 1)
+            m_CurrentEnemyIndex = 0;
+        else
+            m_CurrentEnemyIndex++;
+
+        Thing();
+    }
+
+    //IN LIST ORDER
+    //Enable the enemy to move,
+    //After they attack, notify the manager that they attacked and end there turn
+    //Move onto the next
+
 }

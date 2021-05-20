@@ -4,19 +4,24 @@ public class Platform : MonoBehaviour
 {
     public enum PlatformType 
     { 
-        Free = 0, 
         Player, 
         Enemy, 
-        Occupied 
     };
+
+    public enum PlatformSpace
+    {
+        Free = 0,
+        Occupied
+    }
 
     public Vector3 position;
 
     [SerializeField] private PlatformType platform;
+    [SerializeField] private PlatformSpace m_Space;
     [SerializeField] private MeshRenderer m_MeshRenderer;
     [SerializeField] private bool disabled;
 
-    public bool IsOccupied { get => (platform == PlatformType.Occupied); }
+    public bool IsOccupied { get => (m_Space == PlatformSpace.Occupied); }
 
     // Use this for initialization
     void Start()
@@ -54,9 +59,9 @@ public class Platform : MonoBehaviour
         return disabled;
     }
 
-    public void SetPlatformType(PlatformType plat)
+    public void SetPlatformSpace(PlatformSpace plat)
     {
-        platform = plat;
+        m_Space = plat;
     }
 
     public void Initialize(PlatformType plat)
@@ -83,6 +88,11 @@ public class Platform : MonoBehaviour
         return platform;
     }
 
+    public bool SamePlatformType(PlatformType plat)
+    {
+        return (platform == plat);
+    }
+
     public float GetXScale()
     {
         return transform.localScale.x;
@@ -95,6 +105,6 @@ public class Platform : MonoBehaviour
 
     public void OccupyPlatform()
     {
-        platform = PlatformType.Occupied;
+        m_Space = PlatformSpace.Occupied;
     }
 }

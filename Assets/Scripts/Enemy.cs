@@ -17,15 +17,17 @@ public class Enemy : MonoBehaviour
     Vector3 pos, prevPos;
     bool move;
 
-    float movementTimer = 0;
+    [SerializeField] float movementTimer = 0;
 
-    GridLayout grid;
+    GridLayout m_Grid;
     private bool attack;
+
+    [SerializeField] private bool m_CanMove;
 
     // Use this for initialization
     void Start()
     {
-        grid = GameObject.FindGameObjectWithTag("GridLayout").GetComponent<GridLayout>();
+        m_Grid = GameObject.FindGameObjectWithTag("GridLayout").GetComponent<GridLayout>();
 
         target = GameObject.FindGameObjectWithTag("Player");
 
@@ -41,16 +43,7 @@ public class Enemy : MonoBehaviour
             weapon.SetWeaponType(Weapon.WeaponType.Enemy);
         }
 
-        if (grid == null)
-            Debug.Log("Could not find GridLayout object");
-
-        else
-        {
-            if (grid.OutOfBounds(transform.position))
-                transform.position = new Vector3(UnityEngine.Random.Range(4, 6), transform.position.y, UnityEngine.Random.Range(0, 3));
-        }
-
-        transform.position = new Vector3(Mathf.RoundToInt(transform.position.x), transform.position.y, Mathf.RoundToInt(transform.position.z));
+        //transform.position = new Vector3(Mathf.RoundToInt(transform.position.x), transform.position.y, Mathf.RoundToInt(transform.position.z));
 
        // grid.GetEnemyPlatform(transform.position).SetPlatformType(Platform.PlatformType.Occupied);
     }
@@ -79,21 +72,8 @@ public class Enemy : MonoBehaviour
     private void Dead()
     {
         Destroy(this.gameObject);
-        grid.GetEnemyPlatform(transform.position).SetPlatformType(Platform.PlatformType.Enemy);
+        m_Grid.GetPlatform(transform.position).SetPlatformSpace(Platform.PlatformSpace.Free);
     }
-
-    void Update()
-    {
-        if(prevPos != transform.position)
-        {
-            grid.GetEnemyPlatform(transform.position).SetPlatformType(Platform.PlatformType.Enemy);
-            prevPos = transform.position;
-        }
-        Timer(move);
-        Move();
-        StartCoroutine(CheckAttack());
-    }
-
 
 
     IEnumerator CheckAttack()
@@ -104,7 +84,9 @@ public class Enemy : MonoBehaviour
             {
                 weapon.Attack();
                 attack = true;
+                m_CanMove = false;
                 yield return new WaitForSeconds(attackSpeed);
+                EnemyManager.Instance.NextEnemy();
                 attack = false;
             }
         }
@@ -113,29 +95,18 @@ public class Enemy : MonoBehaviour
     private void Move()
     {
         //Maybe make a movement class
-        pos = new Vector3();
         if (target != null)
         {
             //get targets position and check if its in front of the enemy
             if (transform.position.z != target.transform.position.z)
             {
                 move = true;
-                if (target.transform.position.z < transform.position.z && grid.CheckPlatformSouth(transform.position, Platform.PlatformType.Enemy))
-                    pos += Vector3.back;
+                if (target.transform.position.z < transform.position.z)
+                    m_Grid.MoveOnGrid(transform, GridLayout.Direction.Down, Platform.PlatformType.Enemy);
 
-                if (target.transform.position.z > transform.position.z && grid.CheckPlatformNorth(transform.position, Platform.PlatformType.Enemy))
-                    pos += Vector3.forward;
-
-                //StartCoroutine(Delay());
-                grid.GetEnemyPlatform(transform.position).SetPlatformType(Platform.PlatformType.Occupied);
+                if(target.transform.position.z > transform.position.z)
+                    m_Grid.MoveOnGrid(transform, GridLayout.Direction.Up, Platform.PlatformType.Enemy);
             }
-        }
-
-        if (movementTimer == 0)
-        {
-            grid.GetEnemyPlatform(transform.position).SetPlatformType(Platform.PlatformType.Enemy);
-            transform.position += pos;
-            grid.GetEnemyPlatform(transform.position).SetPlatformType(Platform.PlatformType.Occupied);
         }
     }
 
@@ -160,9 +131,46 @@ public class Enemy : MonoBehaviour
         GetComponent<SpriteRenderer>().material.SetColor("_EmissionColor", Color.black);
     }
 
-    public void SetPosition(Vector3 pos)
+    private void Update()
     {
-        transform.position = new Vector3(pos.x, transform.position.y, pos.z);
+        if (!m_CanMove)
+            return;
+
+        if (prevPos != transform.position)
+        {
+            prevPos = transform.position;
+        }
+        //Timer(move);
+        //Move();
+        StartCoroutine(CheckAttack());
+        StartCoroutine(MoveDelay());
+    }
+    IEnumerator MoveDelay()
+    {
+        if (target != null && !move)
+        {
+            //get targets position and check if its in front of the enemy
+            if (transform.position.z != target.transform.position.z)
+            {
+                move = true;
+                if (target.transform.position.z < transform.position.z)
+                    m_Grid.MoveOnGrid(transform, GridLayout.Direction.Down, Platform.PlatformType.Enemy);
+
+                if (target.transform.position.z > transform.position.z)
+                    m_Grid.MoveOnGrid(transform, GridLayout.Direction.Up, Platform.PlatformType.Enemy);
+            }
+        }
+        yield return new WaitForSeconds(1);
+        move = false;
+    }
+    public void EnableMovement()
+    {
+        m_CanMove = true;
+    }
+
+    public void DisableMovement()
+    {
+        m_CanMove = false;
     }
 
 }

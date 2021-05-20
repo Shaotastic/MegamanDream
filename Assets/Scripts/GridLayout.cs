@@ -4,6 +4,16 @@ using System.Collections;
 
 public class GridLayout : MonoBehaviour
 {
+    public enum Direction
+    {
+        Up,
+        Down,
+        Left,
+        Right
+    }
+
+    public static GridLayout Instance;
+
     public Platform obj;          //The object to use to make a grid with 
 
     public int x, y;                //
@@ -37,10 +47,10 @@ public class GridLayout : MonoBehaviour
     public bool CheckPlatformNorth(Vector3 position, Platform.PlatformType plat)
     {
         if (position.z < (y - 1))
-            if (!objArr[(int)position.x, (int)position.z + 1].GetDisabledPlatform())
-                if (objArr[(int)position.x, (int)position.z + 1].GetPlatformType() == Platform.PlatformType.Free ||
-                    objArr[(int)position.x, (int)position.z + 1].GetPlatformType() == plat)
-                    return true;
+            if (!objArr[(int)position.x, (int)position.z + 1].GetDisabledPlatform() &&
+                    !objArr[(int)position.x, (int)position.z + 1].IsOccupied &&
+                        objArr[(int)position.x, (int)position.z + 1].SamePlatformType(plat))
+                return true;
 
         return false;
     }
@@ -48,10 +58,10 @@ public class GridLayout : MonoBehaviour
     public bool CheckPlatformSouth(Vector3 position, Platform.PlatformType plat)
     {
         if (position.z > 0)
-            if (!objArr[(int)position.x, (int)position.z - 1].GetDisabledPlatform())
-                if (objArr[(int)position.x, (int)position.z - 1].GetPlatformType() == Platform.PlatformType.Free ||
-                    objArr[(int)position.x, (int)position.z - 1].GetPlatformType() == plat)
-                    return true;
+            if (!objArr[(int)position.x, (int)position.z - 1].GetDisabledPlatform() &&
+                    !objArr[(int)position.x, (int)position.z - 1].IsOccupied &&
+                        objArr[(int)position.x, (int)position.z - 1].SamePlatformType(plat))
+                return true;
 
         return false;
     }
@@ -59,10 +69,10 @@ public class GridLayout : MonoBehaviour
     public bool CheckPlatformEast(Vector3 position, Platform.PlatformType plat)
     {
         if (position.x < (x - 1))
-            if (!objArr[(int)position.x + 1, (int)position.z].GetDisabledPlatform())
-                if (objArr[(int)position.x + 1, (int)position.z].GetPlatformType() == Platform.PlatformType.Free ||
-                    objArr[(int)position.x + 1, (int)position.z].GetPlatformType() == plat)
-                    return true;
+            if (!objArr[(int)position.x + 1, (int)position.z].GetDisabledPlatform() &&
+                    !objArr[(int)position.x + 1, (int)position.z].IsOccupied &&
+                        objArr[(int)position.x + 1, (int)position.z].SamePlatformType(plat))
+                return true;
 
         return false;
     }
@@ -70,14 +80,15 @@ public class GridLayout : MonoBehaviour
     public bool CheckPlatformWest(Vector3 position, Platform.PlatformType plat)
     {
         if (position.x > 0)
-            if (!objArr[(int)position.x - 1, (int)position.z].GetDisabledPlatform())
-                if (objArr[(int)position.x - 1, (int)position.z].GetPlatformType() == Platform.PlatformType.Free ||
-                    objArr[(int)position.x - 1, (int)position.z].GetPlatformType() == plat)
-                    return true;
+            if (!objArr[(int)position.x - 1, (int)position.z].GetDisabledPlatform() &&
+                    !objArr[(int)position.x - 1, (int)position.z].IsOccupied &&
+                        objArr[(int)position.x - 1, (int)position.z].SamePlatformType(plat))
+                return true;
 
         return false;
     }
 
+    //Needs 
     public bool OutOfBounds(Vector3 position)
     {
         if (position.x >= (x - 1) || position.x < 0 || position.z >= (y - 1) || position.z < 0)
@@ -125,8 +136,6 @@ public class GridLayout : MonoBehaviour
                         index++;
                     }
                 }
-                else
-                    objArr[i, j].Initialize(Platform.PlatformType.Free);
             }
         }
     }
@@ -136,7 +145,7 @@ public class GridLayout : MonoBehaviour
         return m_EnemyGrid;
     }
 
-    public Platform GetEnemyPlatform(Vector3 vec)
+    public Platform GetPlatform(Vector3 vec)
     {
         return objArr[(int)vec.x, (int)vec.z];
     }
@@ -145,7 +154,7 @@ public class GridLayout : MonoBehaviour
     {
         for (int i = 0; i < ySize; i++)
         {
-            if (objArr[v, i].GetPlatformType() == Platform.PlatformType.Occupied)
+            if (objArr[v, i].IsOccupied)
                 return false;
         }
         return true;
@@ -166,4 +175,53 @@ public class GridLayout : MonoBehaviour
         return m_EnemyGrid[Random.Range(0, m_EnemyGrid.Length)];
     }
 
+    public void MoveOnGrid(Transform obj, Direction dir, Platform.PlatformType plat)
+    {
+        switch (dir)
+        {
+            case Direction.Up:
+                if (CheckPlatformNorth(obj.position, plat))
+                {
+                    SetPlatformSpace(obj.position, Platform.PlatformSpace.Free);
+                    obj.position += Vector3.forward;
+                    SetPlatformSpace(obj.position, Platform.PlatformSpace.Occupied);
+                }
+                break;
+            case Direction.Down:
+                if (CheckPlatformSouth(obj.position, plat))
+                {
+                    SetPlatformSpace(obj.position, Platform.PlatformSpace.Free);
+                    obj.position += Vector3.back;
+                    SetPlatformSpace(obj.position, Platform.PlatformSpace.Occupied);
+                }
+                break;
+            case Direction.Left:
+                if (CheckPlatformWest(obj.position, plat))
+                {
+                    SetPlatformSpace(obj.position, Platform.PlatformSpace.Free);
+                    obj.position += Vector3.left;
+                    SetPlatformSpace(obj.position, Platform.PlatformSpace.Occupied);
+                }
+                break;
+            case Direction.Right:
+                if (CheckPlatformEast(obj.position, plat))
+                {
+                    SetPlatformSpace(obj.position, Platform.PlatformSpace.Free);
+                    obj.position += Vector3.right;
+                    SetPlatformSpace(obj.position, Platform.PlatformSpace.Occupied);
+                }
+                break;
+        }
+    }
+
+    private void SetPlatformSpace(Vector3 position, Platform.PlatformSpace free)
+    {
+        objArr[(int)position.x, (int)position.z].SetPlatformSpace(free);
+    }
+
+    public void SetPositionOnGrid(Transform transform, Vector3 position)
+    {
+        if (!GetPlatform(position).IsOccupied)
+            transform.position = GetPlatform(position).position;
+    }
 }
