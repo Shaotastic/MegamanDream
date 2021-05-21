@@ -45,7 +45,7 @@ public class Enemy : MonoBehaviour
 
         //transform.position = new Vector3(Mathf.RoundToInt(transform.position.x), transform.position.y, Mathf.RoundToInt(transform.position.z));
 
-       // grid.GetEnemyPlatform(transform.position).SetPlatformType(Platform.PlatformType.Occupied);
+        // grid.GetEnemyPlatform(transform.position).SetPlatformType(Platform.PlatformType.Occupied);
     }
 
     void OnTriggerEnter(Collider col)
@@ -76,20 +76,25 @@ public class Enemy : MonoBehaviour
     }
 
 
-    IEnumerator CheckAttack()
+    void CheckAttack()
     {
         if (target != null)
         {
             if (transform.position.z == target.transform.position.z && !attack)
             {
-                weapon.Attack();
-                attack = true;
-                m_CanMove = false;
-                yield return new WaitForSeconds(attackSpeed);
-                EnemyManager.Instance.NextEnemy();
-                attack = false;
+                StartCoroutine(Attack());
             }
         }
+    }
+
+    IEnumerator Attack()
+    {
+        weapon.Attack();
+        attack = true;
+        m_CanMove = false;
+        yield return new WaitForSeconds(attackSpeed);
+        EnemyManager.Instance.NextEnemy();
+        attack = false;
     }
 
     private void Move()
@@ -104,7 +109,7 @@ public class Enemy : MonoBehaviour
                 if (target.transform.position.z < transform.position.z)
                     m_Grid.MoveOnGrid(transform, GridLayout.Direction.Down, Platform.PlatformType.Enemy);
 
-                if(target.transform.position.z > transform.position.z)
+                if (target.transform.position.z > transform.position.z)
                     m_Grid.MoveOnGrid(transform, GridLayout.Direction.Up, Platform.PlatformType.Enemy);
             }
         }
@@ -133,7 +138,8 @@ public class Enemy : MonoBehaviour
 
     private void Update()
     {
-        if (!m_CanMove)
+
+        if (!m_CanMove || GameManager.Instance.IsPaused)
             return;
 
         if (prevPos != transform.position)
@@ -142,7 +148,7 @@ public class Enemy : MonoBehaviour
         }
         //Timer(move);
         //Move();
-        StartCoroutine(CheckAttack());
+        CheckAttack();
         StartCoroutine(MoveDelay());
     }
     IEnumerator MoveDelay()
@@ -154,10 +160,15 @@ public class Enemy : MonoBehaviour
             {
                 move = true;
                 if (target.transform.position.z < transform.position.z)
-                    m_Grid.MoveOnGrid(transform, GridLayout.Direction.Down, Platform.PlatformType.Enemy);
-
+                    if (!m_Grid.MoveOnGrid(transform, GridLayout.Direction.Down, Platform.PlatformType.Enemy))
+                    {
+                        StartCoroutine(Attack());
+                    }
                 if (target.transform.position.z > transform.position.z)
-                    m_Grid.MoveOnGrid(transform, GridLayout.Direction.Up, Platform.PlatformType.Enemy);
+                    if (!m_Grid.MoveOnGrid(transform, GridLayout.Direction.Up, Platform.PlatformType.Enemy))
+                    {
+                        StartCoroutine(Attack());
+                    }
             }
         }
         yield return new WaitForSeconds(1);

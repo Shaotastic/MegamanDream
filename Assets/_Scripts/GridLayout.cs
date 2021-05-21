@@ -175,7 +175,7 @@ public class GridLayout : MonoBehaviour
         return m_EnemyGrid[Random.Range(0, m_EnemyGrid.Length)];
     }
 
-    public void MoveOnGrid(Transform obj, Direction dir, Platform.PlatformType plat)
+    public bool MoveOnGrid(Transform obj, Direction dir, Platform.PlatformType plat)
     {
         switch (dir)
         {
@@ -185,7 +185,9 @@ public class GridLayout : MonoBehaviour
                     SetPlatformSpace(obj.position, Platform.PlatformSpace.Free);
                     obj.position += Vector3.forward;
                     SetPlatformSpace(obj.position, Platform.PlatformSpace.Occupied);
+                    return true;
                 }
+
                 break;
             case Direction.Down:
                 if (CheckPlatformSouth(obj.position, plat))
@@ -193,6 +195,7 @@ public class GridLayout : MonoBehaviour
                     SetPlatformSpace(obj.position, Platform.PlatformSpace.Free);
                     obj.position += Vector3.back;
                     SetPlatformSpace(obj.position, Platform.PlatformSpace.Occupied);
+                    return true;
                 }
                 break;
             case Direction.Left:
@@ -201,6 +204,7 @@ public class GridLayout : MonoBehaviour
                     SetPlatformSpace(obj.position, Platform.PlatformSpace.Free);
                     obj.position += Vector3.left;
                     SetPlatformSpace(obj.position, Platform.PlatformSpace.Occupied);
+                    return true;
                 }
                 break;
             case Direction.Right:
@@ -209,9 +213,12 @@ public class GridLayout : MonoBehaviour
                     SetPlatformSpace(obj.position, Platform.PlatformSpace.Free);
                     obj.position += Vector3.right;
                     SetPlatformSpace(obj.position, Platform.PlatformSpace.Occupied);
+                    return true;
                 }
                 break;
         }
+
+        return false;
     }
 
     private void SetPlatformSpace(Vector3 position, Platform.PlatformSpace free)

@@ -19,6 +19,9 @@ public class Bullet : Gun
     // Update is called once per frame
     void Update()
     {
+        if (GameManager.Instance.IsPaused)
+            return;
+
         if (Vector3.Distance(startPosition, transform.position) > range)
             Destroy(this.gameObject);
 

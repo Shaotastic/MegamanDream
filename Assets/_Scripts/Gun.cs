@@ -38,7 +38,7 @@ public class Gun : Weapon
     {
         if (bulletObj)
         {
-            GameObject temp = (GameObject)Instantiate(bulletObj.gameObject, transform.position, transform.rotation);
+            GameObject temp = Instantiate(bulletObj.gameObject, transform.position, transform.rotation);
             temp.GetComponent<Bullet>().SetBulletDamage(GetWeaponDamage());
             temp.GetComponent<Bullet>().SetBulletRange(bulletRange);
             temp.GetComponent<Bullet>().SetBulletSpeed(GetWeaponSpeed());
